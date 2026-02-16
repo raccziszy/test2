@@ -16,40 +16,55 @@
             overflow: hidden; 
         }
 
-        /* ANDY 1: The original horizontal slider */
-        .andy-spin {
-            width: 150px;
-            position: absolute;
-            top: 50%;
-            z-index: 10;
-            animation: moveSide 4s ease-in-out infinite alternate, rotate 2s linear infinite;
+        /* SHARED SPIN ANIMATION */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* ANDY 2 & 3: Vertical side sliders */
-        .andy-vert {
-            width: 150px;
-            position: absolute;
-            z-index: 10;
-            /* Moves top to bottom (moveUpAndDown) and spins (rotate) */
-            animation: moveUpAndDown 5s ease-in-out infinite alternate, rotate 2s linear infinite;
+        /* 1. ANDY 1: Horizontal - FAST SPIN (1s) */
+        .andy-1 {
+            width: 150px; position: absolute; top: 50%; z-index: 10;
+            animation: moveSide 4s ease-in-out infinite alternate, rotate 1s linear infinite;
         }
 
-        .left-side { left: 20px; }
-        .right-side { right: 20px; }
+        /* 2. ANDY 2: Left Side - SLOW SPIN (4s) */
+        .andy-2 {
+            width: 150px; position: absolute; left: 20px; z-index: 10;
+            animation: moveUpAndDown 5s ease-in-out infinite alternate, rotate 4s linear infinite;
+        }
 
+        /* 3. ANDY 3: Right Side - MEDIUM SPIN (2s) */
+        .andy-3 {
+            width: 150px; position: absolute; right: 20px; z-index: 10;
+            animation: moveUpAndDown 6s ease-in-out infinite alternate, rotate 2s linear infinite;
+        }
+
+        /* 4. ANDY 4: CIRCLE PATH - MEDIUM SPIN (2.5s) */
+        .andy-circle-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 10px; height: 10px;
+            z-index: 11;
+            animation: circlePath 10s linear infinite;
+        }
+        .andy-4 {
+            width: 120px;
+            animation: rotate 2.5s linear infinite;
+        }
+
+        /* ANIMATION PATHS */
         @keyframes moveSide {
             from { left: 0%; }
             to { left: calc(100% - 150px); }
         }
-
         @keyframes moveUpAndDown {
             from { top: 0%; }
             to { top: calc(100% - 150px); }
         }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes circlePath {
+            from { transform: rotate(0deg) translateX(250px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(250px) rotate(-360deg); }
         }
 
         #conf {
@@ -75,12 +90,15 @@
         <input type="button" value="click me" onclick="start()">
     </div>
 
-    <!-- Original Horizontal Spinner -->
-    <img src="andyspin.jpg" class="andy-spin" alt="spinning">
+    <!-- Different Andy Images with unique speeds -->
+    <img src="andyspin.jpg" class="andy-1">
+    <img src="andyspin2.jpg" class="andy-2">
+    <img src="andyspin3.jpg" class="andy-3">
 
-    <!-- New Vertical Side Spinners -->
-    <img src="andyspin2.jpg" class="andy-vert left-side" alt="spinning2">
-    <img src="andyspin3.jpg" class="andy-vert right-side" alt="spinning3">
+    <!-- Andy 4 in a circular orbit -->
+    <div class="andy-circle-container">
+        <img src="andyspin4.jpg" class="andy-4">
+    </div>
 
     <audio id="jump" loop>
         <source src="mingleboosted.mp3">

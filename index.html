@@ -13,7 +13,7 @@
             background-size: contain, auto 100%, auto 100%;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            overflow: hidden; 
             background-color: black;
         }
 
@@ -23,25 +23,21 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 1. ANDY 1: Horizontal - FAST SPIN (1s) */
         .andy-1 {
             width: 150px; position: absolute; top: 50%; z-index: 10;
             animation: moveSide 4s ease-in-out infinite alternate, rotate 1s linear infinite;
         }
 
-        /* 2. ANDY 2: Left Side - SLOW SPIN (4s) */
         .andy-2 {
             width: 150px; position: absolute; left: 20px; z-index: 10;
             animation: moveUpAndDown 5s ease-in-out infinite alternate, rotate 4s linear infinite;
         }
 
-        /* 3. ANDY 3: Right Side - MEDIUM SPIN (2s) */
         .andy-3 {
             width: 150px; position: absolute; right: 20px; z-index: 10;
             animation: moveUpAndDown 6s ease-in-out infinite alternate, rotate 2s linear infinite;
         }
 
-        /* 4. ANDY 4: CIRCLE PATH - MEDIUM SPIN (2.5s) */
         .andy-circle-container {
             position: absolute;
             top: 50%; left: 50%;
@@ -54,7 +50,6 @@
             animation: rotate 2.5s linear infinite;
         }
 
-        /* ANIMATION PATHS */
         @keyframes moveSide {
             from { left: 0%; }
             to { left: calc(100% - 150px); }
@@ -81,12 +76,10 @@
         <input type="button" value="click for mythical andy" onclick="start()">
     </div>
 
-    <!-- Different Andy Images with unique speeds -->
     <img src="andyspin.jpg" class="andy-1">
     <img src="andyspin2.jpg" class="andy-2">
     <img src="andyspin3.jpg" class="andy-3">
 
-    <!-- Andy 4 in a circular orbit -->
     <div class="andy-circle-container">
         <img src="andyspin4.jpg" class="andy-4">
     </div>
@@ -96,39 +89,36 @@
     </audio>
 
     <script>
-        function start() {
-            // Hide overlay
-            document.getElementById('conf').style.display = 'none';
-            
-            // 1. Play Music
-            const audiocont = document.querySelector('#jump');
-            audiocont.play();
-
-            // 2. Activate Fullscreen
+        function forceFullscreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
+            } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
             }
+        }
 
-            // 3. Register the BeforeUnload Event (The Leave Dialog)
-            // Modern browsers only trigger this after user interaction
-            window.onbeforeunload = function (e) {
-                localStorage.x = 1;
-                e.preventDefault(); 
-                e.returnValue = ''; // Standard trigger for "Leave site?" popup
-            };
+        function start() {
+            document.getElementById('conf').style.display = 'none';
+            
+            const audiocont = document.querySelector('#jump');
+            audiocont.play();
 
-            // 4. Trap "Back" Button (History Flood)
-            // Push states to keep the back button on the current page
+            forceFullscreen();
+
+            document.addEventListener('click', forceFullscreen);
+
             window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() {
                 window.history.go(1);
             };
 
-            // 5. Start Persistence Loop
-            // Floods history every 100ms to stay active without freezing animations
+            window.onbeforeunload = function (e) {
+                localStorage.x = 1;
+                e.preventDefault(); 
+                e.returnValue = ''; 
+            };
+
             setInterval(function() {
                 window.history.pushState(null, "", window.location.href);
             }, 100);

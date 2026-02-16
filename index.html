@@ -47,6 +47,31 @@ body{
   min-height: 100vh;
   margin: 0;
 }
+  .andy-spin {
+    width: 200px; /* Adjust as needed */
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); /* Keeps it perfectly centered vertically */
+    
+    /* 
+       moveSide: name of animation
+       4s: speed (lower is faster)
+       ease-in-out: smooth start and stop
+       infinite: never stop
+       alternate: THIS makes it go Right -> Left -> Right
+    */
+    animation: moveSide 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes moveSide {
+    from {
+      left: 0%;
+    }
+    to {
+      /* 100% width minus image width so it doesn't go off-screen */
+      left: calc(100% - 200px); 
+    }
+  }
 
 </style>
 <audio id="jump" loop>

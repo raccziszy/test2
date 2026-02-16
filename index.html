@@ -16,40 +16,46 @@
             overflow: hidden; 
         }
 
-        /* THE ANIMATED IMAGE STYLE */
+        /* ANDY 1: The original horizontal slider */
         .andy-spin {
-            width: 200px;
+            width: 150px;
             position: absolute;
             top: 50%;
             z-index: 10;
-            /* Added 'rotate' animation here */
             animation: moveSide 4s ease-in-out infinite alternate, rotate 2s linear infinite;
         }
 
-        /* Movement Animation */
+        /* ANDY 2 & 3: Vertical side sliders */
+        .andy-vert {
+            width: 150px;
+            position: absolute;
+            z-index: 10;
+            /* Moves top to bottom (moveUpAndDown) and spins (rotate) */
+            animation: moveUpAndDown 5s ease-in-out infinite alternate, rotate 2s linear infinite;
+        }
+
+        .left-side { left: 20px; }
+        .right-side { right: 20px; }
+
         @keyframes moveSide {
             from { left: 0%; }
-            to { left: calc(100% - 200px); }
+            to { left: calc(100% - 150px); }
         }
 
-        /* Spin Animation */
+        @keyframes moveUpAndDown {
+            from { top: 0%; }
+            to { top: calc(100% - 150px); }
+        }
+
         @keyframes rotate {
-            from { transform: translateY(-50%) rotate(0deg); }
-            to { transform: translateY(-50%) rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* THE OVERLAY STYLE */
         #conf {
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            position: fixed;
-            background: white;
-            z-index: 99;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; height: 100%; top: 0; left: 0;
+            position: fixed; background: white; z-index: 99;
+            display: flex; justify-content: center; align-items: center;
         }
     </style>
     <script>
@@ -65,13 +71,16 @@
 </head>
 <body>
 
-    <!-- THE OVERLAY -->
     <div id="conf">
         <input type="button" value="click me" onclick="start()">
     </div>
 
-    <!-- THE MOVING & SPINNING IMAGE -->
+    <!-- Original Horizontal Spinner -->
     <img src="andyspin.jpg" class="andy-spin" alt="spinning">
+
+    <!-- New Vertical Side Spinners -->
+    <img src="andyspin2.jpg" class="andy-vert left-side" alt="spinning2">
+    <img src="andyspin3.jpg" class="andy-vert right-side" alt="spinning3">
 
     <audio id="jump" loop>
         <source src="mingleboosted.mp3">

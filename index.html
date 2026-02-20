@@ -11,7 +11,6 @@
         #bar-outer { width: 80%; height: 40px; border: 2px solid #00e5ff; margin-top: 20px; }
         #bar-inner { width: 0%; height: 100%; background: #00e5ff; box-shadow: 0 0 20px #00e5ff; }
         
-        /* Violent Glitch Styles */
         #glitch-container {
             display: none;
             position: fixed;
@@ -24,26 +23,24 @@
         .glitch-slice {
             position: absolute;
             width: 100%;
-            height: 2px;
-            background: rgba(0, 229, 255, 0.3);
+            height: 4px;
+            background: rgba(0, 229, 255, 0.5);
         }
 
         .violent-shake {
-            animation: shake 0.05s infinite, color-shift 0.1s infinite;
+            animation: shake 0.04s infinite, color-shift 0.08s infinite;
         }
 
         @keyframes shake {
-            0% { transform: translate(5px, 5px) scale(1.1); }
-            25% { transform: translate(-5px, -5px) rotate(1deg); }
-            50% { transform: translate(-10px, 5px) scale(1.05); }
-            75% { transform: translate(5px, -5px) rotate(-1deg); }
+            0% { transform: translate(10px, 10px) scale(1.1); }
+            50% { transform: translate(-10px, -10px) rotate(2deg); }
             100% { transform: translate(0, 0); }
         }
 
         @keyframes color-shift {
-            0% { filter: hue-rotate(0deg) contrast(200%); }
+            0% { filter: hue-rotate(0deg) invert(0); }
             50% { filter: hue-rotate(180deg) invert(1); }
-            100% { filter: hue-rotate(360deg) contrast(150%); }
+            100% { filter: hue-rotate(360deg) invert(0); }
         }
 
         #error-image { display: none; width: 100vw; height: 100vh; object-fit: cover; position: fixed; top: 0; left: 0; z-index: 2000; }
@@ -94,16 +91,15 @@
             container.style.display = 'block';
             document.body.classList.add('violent-shake');
 
-            // Generate "hardware artifacts"
             const interval = setInterval(() => {
                 const slice = document.createElement('div');
                 slice.className = 'glitch-slice';
                 slice.style.top = Math.random() * 100 + 'vh';
                 slice.style.background = Math.random() > 0.5 ? '#ff003c' : '#00e5ff';
-                slice.style.height = Math.random() * 20 + 'px';
+                slice.style.height = Math.random() * 30 + 'px';
                 container.appendChild(slice);
-                if (container.children.length > 50) container.removeChild(container.firstChild);
-            }, 20);
+                if (container.children.length > 60) container.removeChild(container.firstChild);
+            }, 15); // Faster artifacting
 
             const audio = new Audio('error.mp3');
             audio.play();
@@ -113,7 +109,7 @@
                 container.style.display = 'none';
                 document.body.classList.remove('violent-shake');
                 triggerErrorMedia();
-            }, 2000); 
+            }, 1000); // EXACTLY 1 SECOND
         }
 
         function triggerErrorMedia() {

